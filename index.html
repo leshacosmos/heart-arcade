@@ -41,10 +41,20 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
 .quest-option input:focus-visible+span{outline:2px solid #fff1a7;outline-offset:2px}
 .quest-card{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:12px 0}.quest-card img{width:64px;height:64px;border-radius:8px}.quest-card div{flex:1;min-width:0}.quest-card h3{margin-bottom:5px;overflow-wrap:anywhere}
 @media(max-width:500px){.quest-picker{grid-template-columns:repeat(3,minmax(0,1fr))}.quest-form{padding:14px}.quest-card img{width:48px;height:48px}}
-#pushSettings{margin:0 0 16px;color:var(--quiet);font-size:14px}#pushSettings summary{cursor:pointer;width:fit-content;padding:6px 0;color:var(--pink)}#pushSettings p{margin:6px 0 10px}#pushSettings a{color:var(--pink)}
+#pushSettings .panel p{margin:8px 0 16px;color:var(--quiet)}#pushSettings a{color:var(--pink)}
+@media(max-width:440px){nav{gap:4px 10px;justify-content:space-between;flex-wrap:wrap}}
 </style></head>
 <body><header><div class="bar"><div class="brand"><i aria-hidden="true"></i>Великий покоритель сердца</div><div class="role" id="account" hidden><img id="avatar" class="role-avatar" src="avatar-player.png" width="44" height="44" alt=""><span id="demoLabel">Демо</span><select id="role" aria-label="Роль в макете"><option value="player">Леша</option><option value="admin">Ася</option></select><button class="link" id="logout" hidden>Выйти</button></div></div></header>
-<main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><details id="pushSettings" hidden><summary>Уведомления</summary><p id="pushHint" role="status"></p><div><button class="btn" id="pushToggle" hidden>Включить уведомления</button> <button class="btn" id="pushTest" hidden>Проверить</button></div></details><div id="view"></div></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
+<main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><div id="view"></div>
+<section id="pushSettings" aria-labelledby="settingsTitle" hidden>
+  <h1 class="page" id="settingsTitle">Настройки</h1>
+  <div class="panel">
+    <h2>Уведомления</h2>
+    <p id="pushHint" role="status"></p>
+    <button class="btn" id="pushToggle" hidden>Включить уведомления</button>
+    <button class="btn" id="pushTest" hidden>Проверить</button>
+  </div>
+</section></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
 <script src="config.js"></script><script src="game.js?v=quests1"></script>
 <script>
 const styles=[['#bab4e7','film'],['#ebb997','coffee'],['#b4cbb2','letter']];
@@ -63,8 +73,10 @@ function admin(){return `<section><div class="head"><h2>За что сердеч
 function deltaText(){return (state.delta>0?'Начислить ':'Снять ')+Math.abs(state.delta)+' ♥'}
 function coupons(){return state.coupons.length?state.coupons.map((c,i)=>`<div class="row"><div class="rowtext"><strong>${safe(c.name)}</strong><div class="sub">${c.used?'Купон использован':'Готов к использованию'}</div></div>${c.used?'':`<button class="btn" data-use="${c.id}">Использовать</button>`}</div>`).join(''):'<p class="empty">Здесь появятся купленные награды.</p>'}
 function render(){
- const player=state.role==='player',tabs=[['home',player?'Баланс':'Ася'],['quests','Задания'],['shop','Магазин'],['coupons','Купоны']];
+ const player=state.role==='player',tabs=[['home',player?'Баланс':'Ася'],['quests','Задания'],['shop','Магазин'],['coupons','Купоны'],['settings','Настройки']];
  el('nav').innerHTML=tabs.map(([key,title])=>`<button data-page="${key}" ${state.page===key?'aria-current="page"':''}>${title}</button>`).join('');
+ pushBox.hidden=state.page!=='settings';
+ if(!pushBox.hidden){el('view').replaceChildren();return}
  const shop='<section><div class="head"><h2>Магазин наград</h2><button class="link" data-page="shop">Открыть →</button></div>'+cards()+'</section>';
  el('view').innerHTML=state.page==='home'?hero()+(player?shop:admin())+'<section><div class="head"><h2>История</h2></div>'+(state.events.length?history():'<p class="empty">Здесь появятся первые сердечки.</p>')+'</section>':state.page==='quests'?questsView():state.page==='shop'?`<h1 class="page">Магазин наград</h1><p style="margin-bottom:18px">На счету <b class="price">${balance()} ♥</b></p>`+(player?cards():rewardEditor()):'<h1 class="page">Купоны</h1>'+coupons();
  if(el('heart'))drawHeart(el('heart'));
@@ -116,4 +128,4 @@ function drawSprite(canvas){
  poly(g,[[-5,-2],[-2,-2],[-2,0],[1,0],[1,-2],[5,-2],[5,3],[3,3],[3,5],[1,5],[1,7],[-1,7],[-1,5],[-3,5],[-3,3],[-5,3]],'#bf4e68');
  }
 }
-</script><script src="quests.js"></script><script src="push.js"></script><script src="cabinet.js?v=push1"></script></body></html>
+</script><script src="quests.js"></script><script src="push.js?v=settings1"></script><script src="cabinet.js?v=settings1"></script></body></html>

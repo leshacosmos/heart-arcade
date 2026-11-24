@@ -55,7 +55,7 @@ async function refresh(force=false){
   void loadPortrait();
 }
 function loginScreen(){
-  pushBox.hidden=true;pushBox.open=false;pushRegistration=null;pushEnabled=false;
+  pushBox.hidden=true;pushRegistration=null;pushEnabled=false;
   activeUser='';generation++;revision='';pending=null;clearPortrait();
   if(el('dialog').open)el('dialog').close();
   state.page='home';state.quests=[];questDraft=newQuestDraft();state.events=[];state.coupons=[];

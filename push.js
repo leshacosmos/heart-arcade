@@ -22,7 +22,6 @@ function pushControls(enabled) {
 
 async function preparePush() {
   const session=generation;
-  pushBox.hidden=false;
   pushToggle.hidden=pushTest.hidden=true;
   const standalone=matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
