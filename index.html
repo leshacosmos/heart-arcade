@@ -41,9 +41,10 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
 .quest-option input:focus-visible+span{outline:2px solid #fff1a7;outline-offset:2px}
 .quest-card{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:12px 0}.quest-card img{width:64px;height:64px;border-radius:8px}.quest-card div{flex:1;min-width:0}.quest-card h3{margin-bottom:5px;overflow-wrap:anywhere}
 @media(max-width:500px){.quest-picker{grid-template-columns:repeat(3,minmax(0,1fr))}.quest-form{padding:14px}.quest-card img{width:48px;height:48px}}
+#pushSettings{margin:0 0 16px;color:var(--quiet);font-size:14px}#pushSettings summary{cursor:pointer;width:fit-content;padding:6px 0;color:var(--pink)}#pushSettings p{margin:6px 0 10px}#pushSettings a{color:var(--pink)}
 </style></head>
 <body><header><div class="bar"><div class="brand"><i aria-hidden="true"></i>Великий покоритель сердца</div><div class="role" id="account" hidden><img id="avatar" class="role-avatar" src="avatar-player.png" width="44" height="44" alt=""><span id="demoLabel">Демо</span><select id="role" aria-label="Роль в макете"><option value="player">Леша</option><option value="admin">Ася</option></select><button class="link" id="logout" hidden>Выйти</button></div></div></header>
-<main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><div id="view"></div></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
+<main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><details id="pushSettings" hidden><summary>Уведомления</summary><p id="pushHint" role="status"></p><div><button class="btn" id="pushToggle" hidden>Включить уведомления</button> <button class="btn" id="pushTest" hidden>Проверить</button></div></details><div id="view"></div></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
 <script src="config.js"></script><script src="game.js?v=quests1"></script>
 <script>
 const styles=[['#bab4e7','film'],['#ebb997','coffee'],['#b4cbb2','letter']];
@@ -115,4 +116,4 @@ function drawSprite(canvas){
  poly(g,[[-5,-2],[-2,-2],[-2,0],[1,0],[1,-2],[5,-2],[5,3],[3,3],[3,5],[1,5],[1,7],[-1,7],[-1,5],[-3,5],[-3,3],[-5,3]],'#bf4e68');
  }
 }
-</script><script src="quests.js"></script><script src="cabinet.js?v=quests1"></script></body></html>
+</script><script src="quests.js"></script><script src="push.js"></script><script src="cabinet.js?v=push1"></script></body></html>

@@ -55,6 +55,7 @@ async function refresh(force=false){
   void loadPortrait();
 }
 function loginScreen(){
+  pushBox.hidden=true;pushBox.open=false;pushRegistration=null;pushEnabled=false;
   activeUser='';generation++;revision='';pending=null;clearPortrait();
   if(el('dialog').open)el('dialog').close();
   state.page='home';state.quests=[];questDraft=newQuestDraft();state.events=[];state.coupons=[];
@@ -90,8 +91,9 @@ async function localStart(){
   if(session.user)await enter(session.user);else localLoginScreen();
 }
 async function enter(user){
-  generation++;clearPortrait();activeUser=user;state.page='home';
-  try{await refresh(true);notice()}
+  generation++;clearPortrait();activeUser=user;state.page=location.hash==='#quests'?'quests':'home';
+  if(['#quests','#home'].includes(location.hash))window.history.replaceState(null,'',location.pathname+location.search);
+  try{await refresh(true);notice();void preparePush()}
   catch(error){if(isLocal)localLoginScreen();else loginScreen();notice(error.message||'Не удалось открыть кабинет')}
 }
 async function commit(command,args,success){
@@ -133,6 +135,8 @@ el('logout').onclick=async()=>{
     try{await localApi('logout',{});await localStart();notice()}catch(e){notice(e.message)}
     return;
   }
+  if(pushWorking)return;
+  try{await disconnectPush()}catch{notice('Не удалось отключить уведомления перед выходом. Повтори попытку.');return}
   const {error}=await client.auth.signOut({scope:'local'});
   if(error){notice(error.message);return}
   loginScreen();notice();
