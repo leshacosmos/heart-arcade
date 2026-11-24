@@ -1,4 +1,28 @@
 let busy=false, activeUser='', revision='', generation=0, readNumber=0;
+let portraitUrl='', portraitPending=false;
+function portraitFile(){return state.role==='admin'?'avatar-wife.png':'avatar-player.png'}
+function profileAvatar(){return portraitUrl || portraitFile()}
+function clearPortrait(){
+  if(portraitUrl)URL.revokeObjectURL(portraitUrl);
+  portraitUrl='';portraitPending=false;
+  el('avatar').removeAttribute('src');
+}
+async function loadPortrait(){
+  if(!client || !activeUser || portraitPending || portraitUrl)return;
+  const session=generation;
+  portraitPending=true;
+  try{
+    const {data,error}=await client.storage.from('heart-portraits').download(portraitFile());
+    if(error)throw error;
+    if(session!==generation)return;
+    portraitUrl=URL.createObjectURL(data);
+    el('avatar').src=portraitUrl;
+    const profile=document.querySelector('.profile img');
+    if(profile)profile.src=portraitUrl;
+  }catch{
+    // Keep the initials available and retry on the next sync.
+  }finally{if(session===generation)portraitPending=false}
+}
 function notice(message=''){
   el('notice').textContent=message;
   el('notice').hidden=!message;
@@ -15,21 +39,22 @@ async function refresh(force=false){
   const data=await snapshot();
   if(current!==generation || n!==readNumber)return;
   const version=JSON.stringify([data.events,data.coupons,data.rewards,data.role]);
-  if(!force && version===revision)return;
+  if(!force && version===revision){void loadPortrait();return}
   revision=version;
   rewards=data.rewards.map(r=>({...r,paper:styles[r.id][0],sprite:styles[r.id][1]}));
   state.events=data.events;
   state.coupons=data.coupons;
   if(!isDemo)state.role=data.role;
-  el('avatar').src=state.role==='admin'?'avatar-wife.png':'avatar-player.png';
+  el('avatar').src=profileAvatar();
   el('role').value=state.role;
   el('account').hidden=false;
   el('role').hidden=el('demoLabel').hidden=!isDemo;
   el('logout').hidden=isDemo;
   render();
+  void loadPortrait();
 }
 function loginScreen(){
-  activeUser='';generation++;revision='';pending=null;
+  activeUser='';generation++;revision='';pending=null;clearPortrait();
   if(el('dialog').open)el('dialog').close();
   state.page='home';state.events=[];state.coupons=[];
   el('account').hidden=true;el('nav').replaceChildren();
@@ -64,7 +89,7 @@ async function localStart(){
   if(session.user)await enter(session.user);else localLoginScreen();
 }
 async function enter(user){
-  generation++;activeUser=user;state.page='home';
+  generation++;clearPortrait();activeUser=user;state.page='home';
   try{await refresh(true);notice()}
   catch(error){if(isLocal)localLoginScreen();else loginScreen();notice(error.message||'Не удалось открыть кабинет')}
 }
@@ -97,7 +122,7 @@ el('confirm').onclick=()=>{
 el('role').onchange=()=>{
   if(!isDemo || busy){el('role').value=state.role;return}
   state.role=el('role').value;state.page='home';
-  el('avatar').src=state.role==='admin'?'avatar-wife.png':'avatar-player.png';
+  el('avatar').src=profileAvatar();
   notice();render();
 };
 el('logout').onclick=async()=>{

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#16151c"><title>Великий покоритель сердца</title>
 <style>
@@ -28,6 +28,10 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
 [hidden]{display:none!important}.profile{display:flex;align-items:center;gap:14px}.profile img{width:80px;height:80px;border:2px solid #c7a6c5;border-radius:12px;box-shadow:4px 4px 0 #18151e}.profile h1{font-size:clamp(20px,3vw,30px);margin-bottom:4px}.panel .field+label{margin-top:12px}.edit-grid{display:grid;gap:14px}.edit-grid .panel{width:100%}#notice{color:#ffd2df;padding:12px 0}.login{margin:12vh auto 0;max-width:380px}.login h1{margin-bottom:20px}.login .field{margin-bottom:10px}.counter{margin-top:12px}
 @media(max-width:650px){.profile img{width:56px;height:56px;border-radius:8px}.profile{gap:10px}.hero canvas{width:37%;right:-2%}.profile h1{font-size:21px}}
 .profile-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.profile-picker label{position:relative;cursor:pointer}.profile-picker input{position:absolute;opacity:0}.profile-picker span{display:grid;justify-items:center;gap:8px;padding:12px 5px;border:1px solid var(--line);border-radius:8px}.profile-picker img{border-radius:7px}.profile-picker input:checked+span{color:var(--pink);border:2px solid var(--pink);padding:11px 4px}.profile-picker input:focus-visible+span{outline:2px solid #fff1a7;outline-offset:3px}
+@media (max-width:650px), (pointer:coarse) and (orientation:landscape){
+  header{padding-top:calc(12px + env(safe-area-inset-top, 0px))}
+  .bar,main{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+}
 </style></head>
 <body><header><div class="bar"><div class="brand"><i aria-hidden="true"></i>Великий покоритель сердца</div><div class="role" id="account" hidden><img id="avatar" class="role-avatar" src="avatar-player.png" width="44" height="44" alt=""><span id="demoLabel">Демо</span><select id="role" aria-label="Роль в макете"><option value="player">Леша</option><option value="admin">Ася</option></select><button class="link" id="logout" hidden>Выйти</button></div></div></header>
 <main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><div id="view"></div></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
@@ -44,7 +48,7 @@ function history(){return '<div class="rows">'+state.events.map(e=>`<div class="
 function cards(){return '<div class="grid">'+rewards.map((r,i)=>`<button class="ticket" data-reward="${i}"><span class="art" style="--paper:${r.paper}"><canvas aria-hidden="true" data-art="${r.sprite}" width="184" height="96"></canvas></span><span class="ticketbody"><strong>${safe(r.name)}</strong><span class="price">${r.price} ♥</span></span></button>`).join('')+'</div>'}
 const heartForms=new Intl.PluralRules('ru');
 function heartWord(n){return ({one:'сердечко',few:'сердечка'})[heartForms.select(n)]||'сердечек'}
-function hero(){const b=balance(),r=rewards.filter(r=>r.price>b).sort((a,b)=>a.price-b.price)[0];return `<div class="hero"><canvas width="410" height="240" id="heart" aria-hidden="true"></canvas><div class="profile"><img src="${state.role==='admin'?'avatar-wife.png':'avatar-player.png'}" alt="" width="80" height="80"><div><h1>${state.role==='admin'?'Ася':'Леша'}</h1><span class="label">${state.role==='admin'?'Баланс Леши':'Мой баланс'}</span></div></div><div class="counter">${b}<small>${heartWord(b)}</small></div><div class="target">${r?`${safe(r.name)} · ещё ${r.price-b} ♥<div class="meter"><i style="width:${100*Math.max(0,b)/r.price}%"></i></div>`:'Доступны все награды'}</div></div>`}
+function hero(){const b=balance(),r=rewards.filter(r=>r.price>b).sort((a,b)=>a.price-b.price)[0];return `<div class="hero"><canvas width="410" height="240" id="heart" aria-hidden="true"></canvas><div class="profile"><img src="${profileAvatar()}" alt="" width="80" height="80"><div><h1>${state.role==='admin'?'Ася':'Леша'}</h1><span class="label">${state.role==='admin'?'Баланс Леши':'Мой баланс'}</span></div></div><div class="counter">${b}<small>${heartWord(b)}</small></div><div class="target">${r?`${safe(r.name)} · ещё ${r.price-b} ♥<div class="meter"><i style="width:${100*Math.max(0,b)/r.price}%"></i></div>`:'Доступны все награды'}</div></div>`}
 function admin(){return `<section><div class="head"><h2>За что сердечки?</h2></div><form class="panel" id="adjust"><div class="opts">${[-5,-1,1,5,10].map(n=>`<button type="button" class="btn" data-delta="${n}" aria-pressed="${n===state.delta}">${n>0?'+':''}${n}</button>`).join('')}</div><label for="customDelta">Количество со знаком</label><input id="customDelta" class="field" type="number" step="1" min="-9999" max="9999" required value="${state.delta}"><label for="reason">Повод</label><input class="field" id="reason" required maxlength="100" placeholder="Например, встретил после работы"><button class="btn primary" id="apply">${deltaText()}</button></form></section>`}
 function deltaText(){return (state.delta>0?'Начислить ':'Снять ')+Math.abs(state.delta)+' ♥'}
 function coupons(){return state.coupons.length?state.coupons.map((c,i)=>`<div class="row"><div class="rowtext"><strong>${safe(c.name)}</strong><div class="sub">${c.used?'Купон использован':'Готов к использованию'}</div></div>${c.used?'':`<button class="btn" data-use="${c.id}">Использовать</button>`}</div>`).join(''):'<p class="empty">Здесь появятся купленные награды.</p>'}
@@ -102,4 +106,4 @@ function drawSprite(canvas){
  poly(g,[[-5,-2],[-2,-2],[-2,0],[1,0],[1,-2],[5,-2],[5,3],[3,3],[3,5],[1,5],[1,7],[-1,7],[-1,5],[-3,5],[-3,3],[-5,3]],'#bf4e68');
  }
 }
-</script><script src="cabinet.js"></script></body></html>
+</script><script src="cabinet.js?v=portraits1"></script></body></html>
