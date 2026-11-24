@@ -38,11 +38,12 @@ async function refresh(force=false){
   const n=++readNumber, current=generation;
   const data=await snapshot();
   if(current!==generation || n!==readNumber)return;
-  const version=JSON.stringify([data.events,data.coupons,data.rewards,data.role]);
+  const version=JSON.stringify([data.quests,data.events,data.coupons,data.rewards,data.role]);
   if(!force && version===revision){void loadPortrait();return}
   revision=version;
   rewards=data.rewards.map(r=>({...r,paper:styles[r.id][0],sprite:styles[r.id][1]}));
   state.events=data.events;
+  state.quests=data.quests || [];
   state.coupons=data.coupons;
   if(!isDemo)state.role=data.role;
   el('avatar').src=profileAvatar();
@@ -56,7 +57,7 @@ async function refresh(force=false){
 function loginScreen(){
   activeUser='';generation++;revision='';pending=null;clearPortrait();
   if(el('dialog').open)el('dialog').close();
-  state.page='home';state.events=[];state.coupons=[];
+  state.page='home';state.quests=[];questDraft=newQuestDraft();state.events=[];state.coupons=[];
   el('account').hidden=true;el('nav').replaceChildren();
   el('view').innerHTML=`<form id="login" class="panel login"><h1>Вход в игру</h1>
     <label for="email">Почта</label><input class="field" id="email" type="email" autocomplete="username" required>
@@ -107,6 +108,7 @@ async function commit(command,args,success){
       sessionStorage.setItem(storageKey,JSON.stringify(intent));
     }
     await writeAction(command,args,intent.id,state.role);
+    if(command==='createQuest')questDraft=newQuestDraft();
     await refresh(true);
     sessionStorage.removeItem(storageKey);
     toast(success);
@@ -121,7 +123,7 @@ el('confirm').onclick=()=>{
 };
 el('role').onchange=()=>{
   if(!isDemo || busy){el('role').value=state.role;return}
-  state.role=el('role').value;state.page='home';
+  questDraft=newQuestDraft();state.role=el('role').value;state.page='home';
   el('avatar').src=profileAvatar();
   notice();render();
 };
@@ -149,12 +151,21 @@ document.addEventListener('click',e=>{
     modal(r.name,`Списать ${r.price} ♥? На счету останется ${left} ♥.`,'Забрать купон',
       ()=>commit('buy',{reward:r.id,price:r.price,name:r.name},'Купон в коллекции'));
   }
+  if(button.dataset.finish){
+    const q=state.quests.find(q=>q.id===button.dataset.finish);
+    if(q)modal(q.title,`Завершить задание и начислить Леше ${q.reward} ♥?`,'Завершить',()=>commit('finishQuest',{quest:q.id},'Задание выполнено'));
+    return;
+  }
   if(button.dataset.use){
     const c=state.coupons.find(c=>c.id===button.dataset.use);
     modal(c.name,'Отметить купон использованным?','Использовать',()=>commit('use',{coupon:c.id},'Купон использован'));
   }
 });
 document.addEventListener('input',e=>{
+  if(e.target.form?.id==='questForm'){
+    questDraft[e.target.name]=e.target.value;
+    return;
+  }
   if(e.target.id!=='customDelta')return;
   state.delta=e.target.valueAsNumber;
   const valid=e.target.validity.valid && state.delta!==0;
@@ -181,6 +192,10 @@ document.addEventListener('submit',async e=>{
       await enter(data.user.id);
     }catch{notice('Не удалось войти. Проверь почту, пароль и подключение.')}
     finally{busy=false}
+  }else if(form.id==='questForm'){
+    const title=form.elements.title.value.trim(),reward=form.elements.reward.valueAsNumber,illustration=form.elements.illustration.value;
+    if(!title || !Number.isInteger(reward) || reward<1 || reward>9999 || !questArt.has(illustration)){notice('Проверь название, награду и иллюстрацию');return}
+    await commit('createQuest',{title,reward,illustration},'Задание создано');
   }else if(form.id==='adjust'){
     const title=el('reason').value.trim(),delta=el('customDelta').valueAsNumber;
     if(!title || !Number.isInteger(delta) || !delta || Math.abs(delta)>9999){notice('Укажи количество и повод');return}
