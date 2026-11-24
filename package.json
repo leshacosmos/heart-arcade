@@ -1,0 +1,6 @@
+{
+  "name": "heart-arcade",
+  "private": true,
+  "scripts": {"start": "node local-server.mjs"},
+  "dependencies": {"@electric-sql/pglite": "0.3.15"}
+}

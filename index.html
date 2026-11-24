@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#16151c"><title>Великий покоритель сердца</title>
+<style>
+*{box-sizing:border-box} :root{color-scheme:dark;--bg:#15141a;--ink:#fff8ee;--quiet:#bbb6c7;--pink:#ffa4c4;--line:#393640;--mint:#c5edb5;--mono:ui-monospace,Menlo,Consolas,monospace}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input,select{font:inherit}button,select{cursor:pointer}button{color:inherit}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #fff1a7;outline-offset:3px}
+header{border-bottom:1px solid var(--line);background:#19181e}.bar,main{max-width:1072px;margin:auto;padding:0 40px}.bar{height:74px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:23px;font-weight:850;letter-spacing:-1.1px;display:flex;align-items:center;gap:12px}.brand i{flex-shrink:0;width:26px;height:24px;display:block;background:var(--pink);clip-path:polygon(0 13%,12% 13%,12% 0,38% 0,38% 13%,61% 13%,61% 0,88% 0,88% 13%,100% 13%,100% 50%,88% 50%,88% 63%,75% 63%,75% 76%,63% 76%,63% 89%,50% 89%,50% 100%,38% 100%,38% 87%,25% 87%,25% 75%,13% 75%,13% 62%,0 62%)}
+.role{display:flex;align-items:center;gap:9px;color:var(--quiet);font:12px var(--mono)}select{color:var(--ink);background:#25232c;border:1px solid #514c5c;border-radius:8px;padding:8px}
+main{padding-bottom:56px}nav{display:flex;gap:24px;margin:18px 0 22px;align-items:center;overflow-x:auto}nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--quiet);padding:10px 0;font-weight:630;white-space:nowrap}nav button[aria-current=page]{color:var(--pink);border-color:var(--pink)}
+h1,h2,h3,p{margin:0}h1,h2,h3{line-height:1.08;letter-spacing:-.045em}h2{font-size:clamp(23px,3vw,32px)}h3{font-size:20px}.hero{position:relative;overflow:hidden;padding:32px 38px;min-height:240px;border:1px solid #62516d;border-radius:15px;background:radial-gradient(ellipse at 75% 65%,#4a3156 0%,#2d2539 43%,#201d2a 76%);isolation:isolate}
+.hero:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;background-image:linear-gradient(#dbc5e30b 1px,transparent 1px),linear-gradient(90deg,#dbc5e30b 1px,transparent 1px);background-size:24px 24px}
+.hero canvas{position:absolute;right:4%;top:0;width:44%;height:100%;object-fit:contain;z-index:-1}.label{font:600 11px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#d4cbdd}.counter{font:bold clamp(64px,9vw,100px)/1 var(--mono);letter-spacing:-.09em;margin:8px 0 18px;font-variant-numeric:tabular-nums}.counter small{font:600 17px/1.2 -apple-system,Arial,sans-serif;letter-spacing:-.02em;color:var(--pink);margin-left:13px}
+.target{font-size:14px;color:#e8dfeb;max-width:50%}.meter{width:220px;max-width:95%;background:#534458;height:5px;margin-top:8px;border-radius:2px;overflow:hidden}.meter i{height:100%;display:block;background:var(--pink)}
+section{margin-top:30px}.head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:15px}.link{border:0;background:none;color:var(--pink);font-weight:620;font-size:14px;padding:6px 0}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.ticket{overflow:hidden;text-align:left;background:#232128;border:1px solid #403c47;border-radius:12px;padding:0;display:block;width:100%;transition:transform .16s,border-color .16s}.ticket:hover{transform:translateY(-2px);border-color:var(--pink)}.art{height:106px;display:grid;place-items:center;position:relative;overflow:hidden;background-color:var(--paper);background-image:radial-gradient(#0002 .8px,transparent .9px);background-size:5px 5px}.art canvas{height:95%;width:auto;max-width:100%;object-fit:contain;image-rendering:pixelated}.ticketbody{padding:15px 16px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}.ticketbody strong{font-size:17px;line-height:1.2;letter-spacing:-.025em}.price{white-space:nowrap;font:bold 14px var(--mono);color:var(--pink)}
+.rows{border-top:1px solid var(--line)}.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.mark{display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;border-radius:10px;background:#28342b;color:var(--mint);font:20px var(--mono)}.minus{background:#392833;color:var(--pink)}.rowtext{flex:1;min-width:0;overflow-wrap:anywhere}.sub{color:var(--quiet);font-size:13px}.amount{font:bold 15px var(--mono);white-space:nowrap;color:var(--mint)}.neg{color:var(--pink)}
+.page{font-size:clamp(32px,5vw,48px);margin:28px 0 20px}.panel{padding:20px;background:#222027;border:1px solid var(--line);border-radius:12px;max-width:600px}.panel label{display:block;color:var(--quiet);margin-bottom:7px}.field{width:100%;border:1px solid #696271;border-radius:8px;background:#17161c;color:var(--ink);padding:10px 12px}.opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px}.btn{border:1px solid #58535e;border-radius:8px;background:#302d37;padding:10px 14px;font-weight:650}.btn[aria-pressed=true],.primary{background:var(--pink);color:#28151e;border-color:var(--pink)}.btn:disabled{opacity:.55;cursor:default}.panel .primary{margin-top:14px}.empty{color:var(--quiet);padding:15px 0}
+dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radius:16px;padding:24px;width:min(380px,90vw)}dialog::backdrop{background:#08080ec9}dialog h2{margin-bottom:12px}dialog p{color:var(--quiet);margin-bottom:20px}dialog .opts{margin:0}#status{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);border-radius:10px;background:var(--mint);color:#19271b;font-size:14px;font-weight:650;max-width:90vw;width:max-content;padding:10px 14px;box-shadow:0 6px 24px #0005}#status:empty{display:none}
+@media(max-width:650px){.bar,main{padding-left:16px;padding-right:16px}.bar{height:auto;min-height:60px;padding-block:8px}.brand{font-size:18px;line-height:1.12;letter-spacing:-.6px;gap:8px}.role{flex-shrink:0}.role{gap:5px;font-size:10px}.role select{font-size:12px}.hero{padding:22px 18px;min-height:206px}.hero canvas{width:47%;right:0;top:-2%}.target{max-width:62%;font-size:12px}.hero .counter{margin:9px 0 15px}.counter small{display:block;margin:2px 0 0;font-size:14px}.meter{width:145px}.grid{grid-template-columns:1fr;gap:8px}.ticket{display:flex;align-items:stretch}.art{width:86px;height:71px;flex-shrink:0}.ticketbody{flex:1;padding:12px;gap:6px}.ticketbody strong{font-size:16px}.price{font-size:13px}nav{gap:20px;margin:8px 0 15px}nav button{font-size:14px}.head{margin-bottom:10px}section{margin-top:22px}main{padding-bottom:36px}.row{font-size:14px}.label{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.role-avatar{width:44px;height:44px;object-fit:cover;border:1px solid #786783;border-radius:8px;background:#b6a8cc}
+@media(max-width:650px){.role-avatar{width:36px;height:36px;border-radius:6px}}
+[hidden]{display:none!important}.profile{display:flex;align-items:center;gap:14px}.profile img{width:80px;height:80px;border:2px solid #c7a6c5;border-radius:12px;box-shadow:4px 4px 0 #18151e}.profile h1{font-size:clamp(20px,3vw,30px);margin-bottom:4px}.panel .field+label{margin-top:12px}.edit-grid{display:grid;gap:14px}.edit-grid .panel{width:100%}#notice{color:#ffd2df;padding:12px 0}.login{margin:12vh auto 0;max-width:380px}.login h1{margin-bottom:20px}.login .field{margin-bottom:10px}.counter{margin-top:12px}
+@media(max-width:650px){.profile img{width:56px;height:56px;border-radius:8px}.profile{gap:10px}.hero canvas{width:37%;right:-2%}.profile h1{font-size:21px}}
+.profile-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.profile-picker label{position:relative;cursor:pointer}.profile-picker input{position:absolute;opacity:0}.profile-picker span{display:grid;justify-items:center;gap:8px;padding:12px 5px;border:1px solid var(--line);border-radius:8px}.profile-picker img{border-radius:7px}.profile-picker input:checked+span{color:var(--pink);border:2px solid var(--pink);padding:11px 4px}.profile-picker input:focus-visible+span{outline:2px solid #fff1a7;outline-offset:3px}
+</style></head>
+<body><header><div class="bar"><div class="brand"><i aria-hidden="true"></i>Великий покоритель сердца</div><div class="role" id="account" hidden><img id="avatar" class="role-avatar" src="avatar-player.png" width="44" height="44" alt=""><span id="demoLabel">Демо</span><select id="role" aria-label="Роль в макете"><option value="player">Леша</option><option value="admin">Ася</option></select><button class="link" id="logout" hidden>Выйти</button></div></div></header>
+<main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><div id="view"></div></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
+<script src="config.js"></script><script src="game.js"></script>
+<script>
+const styles=[['#bab4e7','film'],['#ebb997','coffee'],['#b4cbb2','letter']];
+let rewards=[];
+const state={role:'player',page:'home',delta:5,events:[],coupons:[]};
+const el=id=>document.getElementById(id);
+const balance=()=>state.events.reduce((sum,e)=>sum+e.delta,0);
+const safe=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eventDate=new Intl.DateTimeFormat('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+function history(){return '<div class="rows">'+state.events.map(e=>`<div class="row"><span aria-hidden="true" class="mark ${e.delta<0?'minus':''}">${e.delta<0?'−':'+'}</span><div class="rowtext">${safe(e.title)}<div class="sub">${e.date?eventDate.format(new Date(e.date)):safe(e.time)}</div></div><b class="amount ${e.delta<0?'neg':''}">${e.delta>0?'+':'−'}${Math.abs(e.delta)} ♥</b></div>`).join('')+'</div>'}
+function cards(){return '<div class="grid">'+rewards.map((r,i)=>`<button class="ticket" data-reward="${i}"><span class="art" style="--paper:${r.paper}"><canvas aria-hidden="true" data-art="${r.sprite}" width="184" height="96"></canvas></span><span class="ticketbody"><strong>${safe(r.name)}</strong><span class="price">${r.price} ♥</span></span></button>`).join('')+'</div>'}
+const heartForms=new Intl.PluralRules('ru');
+function heartWord(n){return ({one:'сердечко',few:'сердечка'})[heartForms.select(n)]||'сердечек'}
+function hero(){const b=balance(),r=rewards.filter(r=>r.price>b).sort((a,b)=>a.price-b.price)[0];return `<div class="hero"><canvas width="410" height="240" id="heart" aria-hidden="true"></canvas><div class="profile"><img src="${state.role==='admin'?'avatar-wife.png':'avatar-player.png'}" alt="" width="80" height="80"><div><h1>${state.role==='admin'?'Ася':'Леша'}</h1><span class="label">${state.role==='admin'?'Баланс Леши':'Мой баланс'}</span></div></div><div class="counter">${b}<small>${heartWord(b)}</small></div><div class="target">${r?`${safe(r.name)} · ещё ${r.price-b} ♥<div class="meter"><i style="width:${100*Math.max(0,b)/r.price}%"></i></div>`:'Доступны все награды'}</div></div>`}
+function admin(){return `<section><div class="head"><h2>За что сердечки?</h2></div><form class="panel" id="adjust"><div class="opts">${[-5,-1,1,5,10].map(n=>`<button type="button" class="btn" data-delta="${n}" aria-pressed="${n===state.delta}">${n>0?'+':''}${n}</button>`).join('')}</div><label for="customDelta">Количество со знаком</label><input id="customDelta" class="field" type="number" step="1" min="-9999" max="9999" required value="${state.delta}"><label for="reason">Повод</label><input class="field" id="reason" required maxlength="100" placeholder="Например, встретил после работы"><button class="btn primary" id="apply">${deltaText()}</button></form></section>`}
+function deltaText(){return (state.delta>0?'Начислить ':'Снять ')+Math.abs(state.delta)+' ♥'}
+function coupons(){return state.coupons.length?state.coupons.map((c,i)=>`<div class="row"><div class="rowtext"><strong>${safe(c.name)}</strong><div class="sub">${c.used?'Купон использован':'Готов к использованию'}</div></div>${c.used?'':`<button class="btn" data-use="${c.id}">Использовать</button>`}</div>`).join(''):'<p class="empty">Здесь появятся купленные награды.</p>'}
+function render(){
+ const player=state.role==='player',tabs=player?[['home','Баланс'],['shop','Магазин'],['coupons','Купоны']]:[['home','Ася'],['shop','Магазин'],['coupons','Купоны']];
+ el('nav').innerHTML=tabs.map(([key,title])=>`<button data-page="${key}" ${state.page===key?'aria-current="page"':''}>${title}</button>`).join('');
+ const shop='<section><div class="head"><h2>Магазин наград</h2><button class="link" data-page="shop">Открыть →</button></div>'+cards()+'</section>';
+ el('view').innerHTML=state.page==='home'?hero()+(player?shop:admin())+'<section><div class="head"><h2>История</h2></div>'+(state.events.length?history():'<p class="empty">Здесь появятся первые сердечки.</p>')+'</section>':state.page==='shop'?`<h1 class="page">Магазин наград</h1><p style="margin-bottom:18px">На счету <b class="price">${balance()} ♥</b></p>`+(player?cards():rewardEditor()):'<h1 class="page">Купоны</h1>'+coupons();
+ if(el('heart'))drawHeart(el('heart'));
+ document.querySelectorAll('[data-art]').forEach(drawSprite);
+}
+let pending=null,timer;
+function modal(title,message,action,onConfirm){el('modalTitle').textContent=title;el('modalText').textContent=message;el('confirm').textContent=action||'';el('confirm').hidden=!action;pending=onConfirm;el('dialog').setAttribute('aria-labelledby','modalTitle');el('dialog').showModal()}
+function toast(text){el('status').textContent=text;clearTimeout(timer);timer=setTimeout(()=>el('status').textContent='',2500)}
+el('close').onclick=()=>el('dialog').close();
+</script>
+<script>
+function poly(ctx,points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill()}
+function drawHeart(canvas){
+ const g=canvas.getContext('2d');g.clearRect(0,0,410,240);
+ const stars=[[41,109,3],[74,55,2],[329,60,4],[349,128,2],[298,179,3],[76,161,4],[112,191,2],[306,27,2]];
+ for(const [x,y,r] of stars){g.fillStyle='#e7c7df';g.fillRect(x-r*2,y-r/2,r*4,r);g.fillRect(x-r/2,y-r*2,r,r*4)}
+ const shape=['0011100011100','0111110111110','1111111111111','1111111111111','1111111111111','0111111111110','0011111111100','0001111111000','0000111110000','0000011100000','0000001000000'];
+ const unit=13,dx=10,dy=-8;
+ const tiles=[];shape.forEach((s,row)=>[...s].forEach((v,col)=>{if(v==='1')tiles.push([row,col])}));
+ for(const [row,col] of tiles){const x=112+col*unit,y=52+row*unit-col*1.6;
+ const front=[[x,y],[x+unit,y-1.6],[x+unit,y+unit-1.6],[x,y+unit]];
+ if(!row||shape[row-1][col]==='0')poly(g,[[x,y],[x+dx,y+dy],[x+unit+dx,y+dy-1.6],[x+unit,y-1.6]],'#ffd4db');
+ if(shape[row][col+1]!=='1')poly(g,[[x+unit,y-1.6],[x+unit+dx,y+dy-1.6],[x+unit+dx,y+unit+dy-1.6],[x+unit,y+unit-1.6]],'#a74378');
+ const light=Math.max(50,84-row*2.7-col*.56+((col+row)%3)*1.3);
+ poly(g,front,`hsl(338 85% ${light}%)`);
+ g.strokeStyle='#ffcbdb55';g.lineWidth=.85;g.beginPath();g.moveTo(x+.5,y+unit-.5);g.lineTo(x+.5,y+.5);g.lineTo(x+unit-.5,y-1.1);g.stroke();
+ if(row===2&&col===2||row===3&&col===1)poly(g,front,'#ffdedf');
+ }
+}
+function drawSprite(canvas){
+ const g=canvas.getContext('2d');g.scale(2,2);
+ const rect=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
+ const line=(x,y,u,v,c,width=2)=>{g.strokeStyle=c;g.lineWidth=width;g.beginPath();g.moveTo(x,y);g.lineTo(u,v);g.stroke()};
+ const ink='#342d42',cream='#fff0ce';
+ g.fillStyle='#33203928';g.beginPath();g.ellipse(47,40,26,3,0,0,Math.PI*2);g.fill();
+ if(canvas.dataset.art==='film'){
+ g.translate(45,24);g.rotate(-.11);
+ rect(-21,-6,42,22,ink);rect(-19,-4,38,18,'#57516b');rect(-17,5,34,1,'#c7bdd2');rect(-17,9,13,1,'#c7bdd2');rect(-17,12,22,1,'#c7bdd2');
+ g.translate(-21,-7);g.rotate(-.18);rect(0,-6,43,7,ink);
+ for(let i=3;i<40;i+=10)poly(g,[[i,-5],[i+5,-5],[i+1,0],[i-3,0]],cream);
+ }else if(canvas.dataset.art==='coffee'){
+ rect(21,34,49,2,ink);rect(24,36,43,2,'#ac6a59');rect(56,16,11,3,ink);rect(65,18,3,8,ink);rect(61,25,5,3,ink);rect(55,27,7,2,ink);
+ const cup=[[24,15],[58,15],[58,24],[55,24],[55,29],[51,29],[51,33],[33,33],[33,31],[29,31],[29,27],[26,27],[26,23],[24,23]];
+ poly(g,cup,ink);poly(g,[[26,17],[56,17],[54,25],[50,31],[34,31],[29,26]],cream);rect(29,17,25,3,'#90563e');rect(31,20,3,7,'#fff9e6');rect(48,27,4,3,'#d7aa82');
+ for(const x of [36,45]){rect(x,7,2,4,cream);rect(x+2,4,2,4,cream)}
+ }else{
+ g.translate(46,25);g.rotate(.10);rect(-22,-13,44,28,ink);rect(-20,-11,40,24,cream);
+ line(-20,12,-3,-1,'#c19882',1);line(20,12,3,-1,'#c19882',1);line(-20,-10,0,4,ink,1.3);line(20,-10,0,4,ink,1.3);
+ poly(g,[[-5,-2],[-2,-2],[-2,0],[1,0],[1,-2],[5,-2],[5,3],[3,3],[3,5],[1,5],[1,7],[-1,7],[-1,5],[-3,5],[-3,3],[-5,3]],'#bf4e68');
+ }
+}
+</script><script src="cabinet.js"></script></body></html>
