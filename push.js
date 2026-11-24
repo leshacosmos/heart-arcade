@@ -5,6 +5,39 @@ const pushToggle = document.getElementById('pushToggle');
 const pushTest = document.getElementById('pushTest');
 let pushRegistration, pushKey, pushEnabled=false, pushWorking=false;
 
+const missionBox=document.getElementById('missionPush');
+const missionToggle=document.getElementById('missionPushToggle');
+const missionStatus=document.getElementById('missionPushStatus');
+let pushAnchor='';
+
+function focusPushCard(){
+  if(!pushAnchor)return;
+  const target=document.getElementById(pushAnchor);
+  if(!target)return;
+  pushAnchor='';
+  target.focus({preventScroll:true});
+  target.scrollIntoView({block:'center'});
+}
+
+async function missionPreference(enabled){
+  const session=generation;
+  missionStatus.textContent='';
+  missionToggle.disabled=true;
+  try{
+    const sub=await pushRegistration.pushManager.getSubscription();
+    if(!sub)throw Error('Missing subscription');
+    const {data,error}=await client.rpc('heart_mission_push',{endpoint_url:sub.endpoint,enabled});
+    if(error)throw error;
+    if(generation===session)missionToggle.checked=data;
+  }catch{
+    if(generation===session){
+      if(enabled!==null)missionToggle.checked=!enabled;
+      missionStatus.textContent='Не удалось проверить настройку. Проверь подключение и повтори попытку.';
+    }
+  }finally{if(generation===session)missionToggle.disabled=false}
+}
+missionToggle.onchange=()=>void missionPreference(missionToggle.checked);
+
 async function deviceRpc(op, device={}) {
   const {data,error} = await client.rpc('heart_push_device', {op,device});
   if (error) throw error;
@@ -13,15 +46,18 @@ async function deviceRpc(op, device={}) {
 
 function pushControls(enabled) {
   pushEnabled=enabled;
+  missionBox.hidden=!(enabled && state.role==='admin');
+  if(!missionBox.hidden)void missionPreference(null);
   pushToggle.hidden=false;
   pushToggle.disabled=false;
   pushToggle.textContent=enabled?'Выключить':'Включить уведомления';
   pushTest.hidden=!enabled;
-  pushHint.textContent=enabled?'Уведомления включены на этом устройстве.':'Получай уведомления о сердечках и заданиях на этом устройстве.';
+  pushHint.textContent=enabled?'Уведомления включены на этом устройстве.':'Получай уведомления о сердечках, заданиях и магазине на этом устройстве.';
 }
 
 async function preparePush() {
   const session=generation;
+  missionBox.hidden=true;
   pushToggle.hidden=pushTest.hidden=true;
   const standalone=matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
@@ -103,7 +139,8 @@ pushTest.onclick=async()=>{
 };
 navigator.serviceWorker?.addEventListener('message',event=>{
   if(event.data?.type!=='heart-open')return;
-  const page=event.data.page==='quests'?'quests':'home';
-  if(!activeUser){location.hash=page;return}
-  state.page=page;render();void sync();
+  const {page,anchor}=pushRoute(event.data.page,event.data.anchor);
+  if(!activeUser){location.hash=anchor?page+'/'+anchor:page;return}
+  state.page=page;pushAnchor=anchor;render();
+  void refresh().catch(()=>notice('Не удалось обновить кабинет. Проверь подключение.'));
 });

@@ -92,8 +92,10 @@ async function localStart(){
   if(session.user)await enter(session.user);else localLoginScreen();
 }
 async function enter(user){
-  generation++;clearPortrait();activeUser=user;state.page=location.hash==='#quests'?'quests':'home';
-  if(['#quests','#home'].includes(location.hash))window.history.replaceState(null,'',location.pathname+location.search);
+  generation++;clearPortrait();activeUser=user;
+  const route=pushRoute(...location.hash.slice(1).split('/'));
+  state.page=route.page;pushAnchor=route.anchor;
+  if(location.hash==='#home' || route.page!=='home')window.history.replaceState(null,'',location.pathname+location.search);
   try{await refresh(true);notice();void preparePush()}
   catch(error){if(isLocal)localLoginScreen();else loginScreen();notice(error.message||'Не удалось открыть кабинет')}
 }
@@ -145,7 +147,7 @@ el('logout').onclick=async()=>{
 document.addEventListener('click',e=>{
   const button=e.target.closest('button');
   if(!button || busy || !activeUser)return;
-  if(button.dataset.page){state.page=button.dataset.page;notice();render();return}
+  if(button.dataset.page){pushAnchor='';state.page=button.dataset.page;notice();render();return}
   if(button.hasAttribute('data-delta')){
     el('customDelta').value=button.dataset.delta;
     el('customDelta').dispatchEvent(new Event('input',{bubbles:true}));return;

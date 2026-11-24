@@ -13,7 +13,7 @@ const dataPath=process.env.HEART_DATA_DIR || path.join(directory,'.local-data');
 const hashPassword=promisify(scrypt);
 const hashToken=value=>createHash('sha256').update(value).digest('hex');
 const fail=(status,message)=>Object.assign(new Error(message),{status});
-const files=new Set(['index.html','quests.js','push.js','push-worker.js','game.js','cabinet.js','manifest.webmanifest','avatar-wife.png','avatar-player.png','icon-192.png','icon-512.png']);
+const files=new Set(['index.html','quests.js','push-route.js','push.js','push-worker.js','game.js','cabinet.js','manifest.webmanifest','avatar-wife.png','avatar-player.png','icon-192.png','icon-512.png']);
 await mkdir(dataPath,{recursive:true,mode:0o700});
 // Acquire the listener before opening the database so two app instances cannot use it.
 const server=http.createServer();

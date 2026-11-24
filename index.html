@@ -44,6 +44,7 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
 #pushSettings .panel p{margin:8px 0 16px;color:var(--quiet)}#pushSettings a{color:var(--pink)}
 @media(max-width:440px){nav{gap:4px 10px;justify-content:space-between;flex-wrap:wrap}}
 .quest-action,.quest-note,.wish-price label{margin-top:10px}.quest-report{display:grid;gap:6px;max-width:380px}.quest-report button{justify-self:start}.mystery-art{display:grid;place-items:center;flex:none;width:64px;height:64px;background:#423349;border-radius:8px;color:var(--pink);font:bold 32px var(--mono)}.quest-form .secret-toggle{margin:14px 0}.secret-toggle input{accent-color:var(--pink)}.wishes h2,.wish-price h3{margin-bottom:12px}.wish-price,.quest-form{margin-top:15px}
+#missionPush{margin-top:16px}#missionPush label{cursor:pointer}#missionPush input{accent-color:var(--pink)}#missionPushStatus{display:block}
 </style></head>
 <body><header><div class="bar"><div class="brand"><i aria-hidden="true"></i>Великий покоритель сердца</div><div class="role" id="account" hidden><img id="avatar" class="role-avatar" src="avatar-player.png" width="44" height="44" alt=""><span id="demoLabel">Демо</span><select id="role" aria-label="Роль в макете"><option value="player">Леша</option><option value="admin">Ася</option></select><button class="link" id="logout" hidden>Выйти</button></div></div></header>
 <main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><div id="view"></div>
@@ -54,6 +55,8 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
     <p id="pushHint" role="status"></p>
     <button class="btn" id="pushToggle" hidden>Включить уведомления</button>
     <button class="btn" id="pushTest" hidden>Проверить</button>
+    <div id="missionPush" hidden><label><input id="missionPushToggle" type="checkbox"> Когда Леша раскрывает секретную миссию</label>
+      <span class="sub" id="missionPushStatus" role="status"></span></div>
   </div>
 </section></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
 <script src="config.js"></script><script src="game.js?v=pair1"></script>
@@ -65,23 +68,24 @@ const el=id=>document.getElementById(id);
 const balance=()=>state.events.reduce((sum,e)=>sum+e.delta,0);
 const safe=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const eventDate=new Intl.DateTimeFormat('ru',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-function history(){return '<div class="rows">'+state.events.map(e=>`<div class="row"><span aria-hidden="true" class="mark ${e.delta<0?'minus':''}">${e.delta<0?'−':'+'}</span><div class="rowtext">${safe(e.title)}<div class="sub">${e.date?eventDate.format(new Date(e.date)):safe(e.time)}</div></div><b class="amount ${e.delta<0?'neg':''}">${e.delta>0?'+':'−'}${Math.abs(e.delta)} ♥</b></div>`).join('')+'</div>'}
-function cards(){return '<div class="grid">'+rewards.map((r,i)=>`<button class="ticket" data-reward="${i}"><span class="art" style="--paper:${r.paper}"><canvas aria-hidden="true" data-art="${r.sprite}" width="184" height="96"></canvas></span><span class="ticketbody"><strong>${safe(r.name)}</strong><span class="price">${r.price} ♥</span></span></button>`).join('')+'</div>'}
+function walletHistory(){return '<div class="rows">'+state.events.map(e=>`<div class="row"><span aria-hidden="true" class="mark ${e.delta<0?'minus':''}">${e.delta<0?'−':'+'}</span><div class="rowtext">${safe(e.title)}<div class="sub">${e.date?eventDate.format(new Date(e.date)):safe(e.time)}</div></div><b class="amount ${e.delta<0?'neg':''}">${e.delta>0?'+':'−'}${Math.abs(e.delta)} ♥</b></div>`).join('')+'</div>'}
+function cards(){return '<div class="grid">'+rewards.map((r,i)=>`<button class="ticket" id="reward-${r.id}" data-reward="${i}"><span class="art" style="--paper:${r.paper}"><canvas aria-hidden="true" data-art="${r.sprite}" width="184" height="96"></canvas></span><span class="ticketbody"><strong>${safe(r.name)}</strong><span class="price">${r.price} ♥</span></span></button>`).join('')+'</div>'}
 const heartForms=new Intl.PluralRules('ru');
 function heartWord(n){return ({one:'сердечко',few:'сердечка'})[heartForms.select(n)]||'сердечек'}
 function hero(){const b=balance(),r=rewards.filter(r=>r.price>b).sort((a,b)=>a.price-b.price)[0];return `<div class="hero"><canvas width="410" height="240" id="heart" aria-hidden="true"></canvas><div class="profile"><img src="${profileAvatar()}" alt="" width="80" height="80"><div><h1>${state.role==='admin'?'Ася':'Леша'}</h1><span class="label">${state.role==='admin'?'Баланс Леши':'Мой баланс'}</span></div></div><div class="counter">${b}<small>${heartWord(b)}</small></div><div class="target">${r?`${safe(r.name)} · ещё ${r.price-b} ♥<div class="meter"><i style="width:${100*Math.max(0,b)/r.price}%"></i></div>`:'Доступны все награды'}</div></div>`}
 function admin(){return quickButtons()+`<section><div class="head"><h2>За что сердечки?</h2></div><form class="panel" id="adjust"><div class="opts">${[-5,-1,1,5,10].map(n=>`<button type="button" class="btn" data-delta="${n}" aria-pressed="${n===state.delta}">${n>0?'+':''}${n}</button>`).join('')}</div><label for="customDelta">Количество со знаком</label><input id="customDelta" class="field" type="number" step="1" min="-9999" max="9999" required value="${state.delta}"><label for="reason">Повод</label><input class="field" id="reason" required maxlength="100" placeholder="Например, встретил после работы"><button class="btn primary" id="apply">${deltaText()}</button> <button class="btn" name="intent" value="saveQuick" id="saveQuick" ${state.delta>0?'':'disabled'}>Сохранить как быстрый повод</button></form></section>`}
 function deltaText(){return (state.delta>0?'Начислить ':'Снять ')+Math.abs(state.delta)+' ♥'}
-function coupons(){return state.coupons.length?state.coupons.map((c,i)=>`<div class="row"><div class="rowtext"><strong>${safe(c.name)}</strong><div class="sub">${c.used?'Купон использован':'Готов к использованию'}</div></div>${c.used?'':`<button class="btn" data-use="${c.id}">Использовать</button>`}</div>`).join(''):'<p class="empty">Здесь появятся купленные награды.</p>'}
+function coupons(){return state.coupons.length?state.coupons.map(c=>`<div class="row" tabindex="-1" id="coupon-${safe(c.id)}"><div class="rowtext"><strong>${safe(c.name)}</strong><div class="sub">${c.used?'Купон использован':'Готов к использованию'}</div></div>${c.used?'':`<button class="btn" data-use="${c.id}">Использовать</button>`}</div>`).join(''):'<p class="empty">Здесь появятся купленные награды.</p>'}
 function render(){
  const player=state.role==='player',tabs=[['home',player?'Баланс':'Ася'],['quests','Задания'],['shop','Магазин'],['coupons','Купоны'],['settings','Настройки']];
  el('nav').innerHTML=tabs.map(([key,title])=>`<button data-page="${key}" ${state.page===key?'aria-current="page"':''}>${title}</button>`).join('');
  pushBox.hidden=state.page!=='settings';
  if(!pushBox.hidden){el('view').replaceChildren();return}
  const shop='<section><div class="head"><h2>Магазин наград</h2><button class="link" data-page="shop">Открыть →</button></div>'+cards()+'</section>';
- el('view').innerHTML=state.page==='home'?hero()+(player?shop:admin())+'<section><div class="head"><h2>История</h2></div>'+(state.events.length?history():'<p class="empty">Здесь появятся первые сердечки.</p>')+'</section>':state.page==='quests'?questsView():state.page==='shop'?`<h1 class="page">Магазин наград</h1><p style="margin-bottom:18px">На счету <b class="price">${balance()} ♥</b></p>`+(player?cards():rewardEditor())+wishSection():'<h1 class="page">Купоны</h1>'+coupons();
+ el('view').innerHTML=state.page==='home'?hero()+(player?shop:admin())+'<section><div class="head"><h2>История</h2></div>'+(state.events.length?walletHistory():'<p class="empty">Здесь появятся первые сердечки.</p>')+'</section>':state.page==='quests'?questsView():state.page==='shop'?`<h1 class="page">Магазин наград</h1><p style="margin-bottom:18px">На счету <b class="price">${balance()} ♥</b></p>`+(player?cards():rewardEditor())+wishSection():'<h1 class="page">Купоны</h1>'+coupons();
  if(el('heart'))drawHeart(el('heart'));
  document.querySelectorAll('[data-art]').forEach(drawSprite);
+ focusPushCard();
 }
 let pending=null,timer;
 function modal(title,message,action,onConfirm){el('modalTitle').textContent=title;el('modalText').textContent=message;el('confirm').textContent=action||'';el('confirm').hidden=!action;pending=onConfirm;el('dialog').setAttribute('aria-labelledby','modalTitle');el('dialog').showModal()}
@@ -129,4 +133,4 @@ function drawSprite(canvas){
  poly(g,[[-5,-2],[-2,-2],[-2,0],[1,0],[1,-2],[5,-2],[5,3],[3,3],[3,5],[1,5],[1,7],[-1,7],[-1,5],[-3,5],[-3,3],[-5,3]],'#bf4e68');
  }
 }
-</script><script src="quests.js?v=pair1"></script><script src="push.js?v=settings1"></script><script src="cabinet.js?v=pair1"></script></body></html>
+</script><script src="quests.js?v=wish1"></script><script src="push-route.js?v=wish1"></script><script src="push.js?v=wish1"></script><script src="cabinet.js?v=wish1"></script></body></html>

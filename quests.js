@@ -45,7 +45,7 @@ function questCard(q){
         <button class="btn primary">Я сделал</button></form>`;
     }
   }
-  return `<article class="quest-card">${image}<div>${q.hint?'<span class="sub">Секретная миссия</span>':''}
+  return `<article class="quest-card" tabindex="-1" id="quest-${id}">${image}<div>${q.hint?'<span class="sub">Секретная миссия</span>':''}
     <h3>${safe(sealed?q.hint:q.title)}</h3><span class="price">+${q.reward} ♥</span>
     ${!player && q.hint && !q.revealed_at?`<p class="sub">Подсказка · ${safe(q.hint)}</p>`:''}
     ${q.note?`<p class="quest-note">Леша: ${safe(q.note)}</p>`:''}
