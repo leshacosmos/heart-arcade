@@ -40,18 +40,32 @@ function applyDemo(game,command,args,id,role){
   if(game.requests[id])return;
   const item=game.rewards.find(r=>r.id===args.reward);
   const event={id,date:new Date().toISOString()};
-  if(command==='createQuest' || command==='finishQuest'){
-    if(role!=='admin')throw Error('Заданиями управляет Ася');
-    game.quests ||= [];
-    if(command==='createQuest'){
-      if(!questArt.has(args.illustration) || !args.title.trim() || args.title.length>100 || !Number.isInteger(args.reward) || args.reward<1 || args.reward>9999)throw Error('Проверь данные задания');
-      game.quests.unshift({id,title:args.title.trim(),reward:args.reward,illustration:args.illustration,created_at:event.date,completed_at:null});
-    }else{
-      const quest=game.quests.find(q=>q.id===args.quest);
-      if(!quest || quest.completed_at)throw Error('Задание уже закрыто или недоступно');
-      quest.completed_at=event.date;
-      game.events.unshift({...event,title:quest.title,delta:quest.reward});
-    }
+  game.quests ||= [];game.wishes ||= [];game.quick ||= [];
+  const quest=game.quests.find(q=>q.id===args.quest);
+  if(['revealQuest','submitQuest','wish'].includes(command) && role!=='player')throw Error('Это действие доступно Леше');
+  if(['createQuest','finishQuest','saveQuick','publishWish'].includes(command) && role!=='admin')throw Error('Это действие доступно Асе');
+  if(command==='createQuest'){
+    if(!questArt.has(args.illustration) || !args.title.trim() || args.title.length>100 || !Number.isInteger(args.reward) || args.reward<1 || args.reward>9999)throw Error('Проверь данные задания');
+    game.quests.unshift({id,title:args.title.trim(),reward:args.reward,illustration:args.illustration,hint:args.hint||null,created_at:event.date,completed_at:null});
+  }else if(command==='revealQuest'){
+    if(!quest?.hint || quest.revealed_at || quest.completed_at)throw Error('Миссия уже раскрыта или недоступна');
+    quest.revealed_at=event.date;
+  }else if(command==='submitQuest'){
+    if(!quest || quest.submitted_at || quest.completed_at || (quest.hint && !quest.revealed_at))throw Error('Проверь статус задания');
+    quest.submitted_at=event.date;quest.note=args.note;
+  }else if(command==='finishQuest'){
+    if(!quest?.submitted_at || quest.completed_at)throw Error('Проверь статус задания');
+    quest.completed_at=event.date;
+    game.events.unshift({...event,title:quest.title,delta:quest.reward});
+  }else if(command==='wish'){
+    game.wishes.push({id,name:args.name});
+  }else if(command==='publishWish'){
+    const wish=game.wishes.find(w=>w.id===args.wish);
+    if(!wish)throw Error('Желание уже добавлено в магазин');
+    game.rewards.push({id:Math.max(2,...game.rewards.map(r=>r.id))+1,name:wish.name,price:args.price});
+    game.wishes=game.wishes.filter(w=>w.id!==wish.id);
+  }else if(command==='saveQuick'){
+    if(!game.quick.some(p=>p.title===args.title && p.delta===args.delta))game.quick.push({id,title:args.title,delta:args.delta});
   }else if(command==='adjust'){
     if(role!=='admin')throw Error('Начисления доступны в пульте жены');
     game.events.unshift({...event,title:args.title,delta:args.delta});
@@ -84,13 +98,13 @@ let client;
 async function snapshot(){
   if(isLocal)return localApi('state');
   if(isDemo)return demoTransaction();
-  const {data,error}=await client.rpc('heart_snapshot_with_quests');
+  const {data,error}=await client.rpc('heart_play_snapshot');
   if(error)throw error;
   return data;
 }
 async function writeAction(command,args,id,role){
   if(isLocal)return localApi('action',{command,args,id});
   if(isDemo)return demoTransaction(g=>applyDemo(g,command,args,id,role));
-  const {error}=await client.rpc(['createQuest','finishQuest'].includes(command)?'heart_quest_action':'heart_action',{request_id:id,command,args});
+  const {error}=await client.rpc(['adjust','buy','use','edit'].includes(command)?'heart_action':'heart_quest_action',{request_id:id,command,args});
   if(error)throw error;
 }

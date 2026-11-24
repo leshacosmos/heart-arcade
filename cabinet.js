@@ -38,10 +38,11 @@ async function refresh(force=false){
   const n=++readNumber, current=generation;
   const data=await snapshot();
   if(current!==generation || n!==readNumber)return;
-  const version=JSON.stringify([data.quests,data.events,data.coupons,data.rewards,data.role]);
+  const version=JSON.stringify([data.wishes,data.quick,data.quests,data.events,data.coupons,data.rewards,data.role]);
   if(!force && version===revision){void loadPortrait();return}
   revision=version;
-  rewards=data.rewards.map(r=>({...r,paper:styles[r.id][0],sprite:styles[r.id][1]}));
+  rewards=data.rewards.map(r=>({...r,paper:(styles[r.id] || styles[2])[0],sprite:(styles[r.id] || styles[2])[1]}));
+  state.wishes=data.wishes || [];state.quick=data.quick || [];
   state.events=data.events;
   state.quests=data.quests || [];
   state.coupons=data.coupons;
@@ -155,9 +156,18 @@ document.addEventListener('click',e=>{
     modal(r.name,`Списать ${r.price} ♥? На счету останется ${left} ♥.`,'Забрать купон',
       ()=>commit('buy',{reward:r.id,price:r.price,name:r.name},'Купон в коллекции'));
   }
+  if(button.dataset.quick){
+    const p=state.quick.find(p=>p.id===button.dataset.quick);
+    if(p)void commit('adjust',{title:p.title,delta:p.delta},`Начислено +${p.delta} ♥`);
+    return;
+  }
+  if(button.dataset.reveal){
+    void commit('revealQuest',{quest:button.dataset.reveal},'Миссия раскрыта');
+    return;
+  }
   if(button.dataset.finish){
     const q=state.quests.find(q=>q.id===button.dataset.finish);
-    if(q)modal(q.title,`Завершить задание и начислить Леше ${q.reward} ♥?`,'Завершить',()=>commit('finishQuest',{quest:q.id},'Задание выполнено'));
+    if(q)modal(q.title,`Подтвердить выполнение и начислить Леше ${q.reward} ♥?`,'Подтвердить',()=>commit('finishQuest',{quest:q.id},'Задание выполнено'));
     return;
   }
   if(button.dataset.use){
@@ -167,13 +177,17 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{
   if(e.target.form?.id==='questForm'){
-    questDraft[e.target.name]=e.target.value;
+    if(e.target.name==='secret'){
+      questDraft.secret=e.target.checked;
+      el('clueField').hidden=!questDraft.secret;el('questHint').required=questDraft.secret;
+    }else questDraft[e.target.name]=e.target.value;
     return;
   }
   if(e.target.id!=='customDelta')return;
   state.delta=e.target.valueAsNumber;
   const valid=e.target.validity.valid && state.delta!==0;
   document.querySelectorAll('[data-delta]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.delta)===state.delta));
+  el('saveQuick').disabled=!valid || state.delta<1;
   el('apply').disabled=!valid;el('apply').textContent=valid?deltaText():'Укажи количество';
 });
 document.addEventListener('submit',async e=>{
@@ -199,10 +213,24 @@ document.addEventListener('submit',async e=>{
   }else if(form.id==='questForm'){
     const title=form.elements.title.value.trim(),reward=form.elements.reward.valueAsNumber,illustration=form.elements.illustration.value;
     if(!title || !Number.isInteger(reward) || reward<1 || reward>9999 || !questArt.has(illustration)){notice('Проверь название, награду и иллюстрацию');return}
-    await commit('createQuest',{title,reward,illustration},'Задание создано');
+    const hint=form.elements.secret.checked?form.elements.hint.value.trim():null;
+    if(hint===''){notice('Добавь подсказку для Леши');return}
+    await commit('createQuest',{title,reward,illustration,hint},'Задание создано');
+  }else if(form.dataset.submitQuest){
+    await commit('submitQuest',{quest:form.dataset.submitQuest,note:form.elements.note.value.trim()},'Отправлено Асе на подтверждение');
+  }else if(form.id==='wishForm'){
+    const name=form.elements.name.value.trim();
+    if(!name){notice('Введи название желания');return}
+    await commit('wish',{name},'Желание отправлено Асе');
+  }else if(form.dataset.wish){
+    await commit('publishWish',{wish:form.dataset.wish,price:form.elements.price.valueAsNumber},'Желание в магазине');
   }else if(form.id==='adjust'){
     const title=el('reason').value.trim(),delta=el('customDelta').valueAsNumber;
     if(!title || !Number.isInteger(delta) || !delta || Math.abs(delta)>9999){notice('Укажи количество и повод');return}
+    if(e.submitter?.value==='saveQuick'){
+      if(delta>0)await commit('saveQuick',{title,delta},'Быстрый повод сохранён');
+      return;
+    }
     await commit('adjust',{title,delta},delta>0?'Сердечки начислены':'Сердечки списаны');
   }else if(form.classList.contains('edit')){
     const name=form.elements.name.value.trim(),price=form.elements.price.valueAsNumber;
