@@ -45,6 +45,7 @@ function questCard(q){
         <button class="btn primary">Я сделал</button></form>`;
     }
   }
+  if(!player)action+=`<button type="button" class="link quest-delete" data-delete-quest="${id}" aria-label="Удалить задание «${safe(q.title)}»">Удалить задание</button>`;
   return `<article class="quest-card" tabindex="-1" id="quest-${id}">${image}<div>${q.hint?'<span class="sub">Секретная миссия</span>':''}
     <h3>${safe(sealed?q.hint:q.title)}</h3><span class="price">+${q.reward} ♥</span>
     ${!player && q.hint && !q.revealed_at?`<p class="sub">Подсказка · ${safe(q.hint)}</p>`:''}

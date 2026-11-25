@@ -43,10 +43,16 @@ function applyDemo(game,command,args,id,role){
   game.quests ||= [];game.wishes ||= [];game.quick ||= [];
   const quest=game.quests.find(q=>q.id===args.quest);
   if(['revealQuest','submitQuest','wish'].includes(command) && role!=='player')throw Error('Это действие доступно Леше');
-  if(['createQuest','finishQuest','saveQuick','publishWish'].includes(command) && role!=='admin')throw Error('Это действие доступно Асе');
+  if(['createQuest','createReward','deleteQuest','finishQuest','saveQuick','publishWish'].includes(command) && role!=='admin')throw Error('Это действие доступно Асе');
   if(command==='createQuest'){
     if(!questArt.has(args.illustration) || !args.title.trim() || args.title.length>100 || !Number.isInteger(args.reward) || args.reward<1 || args.reward>9999)throw Error('Проверь данные задания');
     game.quests.unshift({id,title:args.title.trim(),reward:args.reward,illustration:args.illustration,hint:args.hint||null,created_at:event.date,completed_at:null});
+  }else if(command==='createReward'){
+    const name=args.name.trim();
+    if(!name || name.length>80 || !Number.isInteger(args.price) || args.price<1 || args.price>9999)throw Error('Проверь название и цену');
+    game.rewards.push({id:Math.max(2,...game.rewards.map(r=>r.id))+1,name,price:args.price});
+  }else if(command==='deleteQuest'){
+    game.quests=game.quests.filter(q=>q.id!==args.quest);
   }else if(command==='revealQuest'){
     if(!quest?.hint || quest.revealed_at || quest.completed_at)throw Error('Миссия уже раскрыта или недоступна');
     quest.revealed_at=event.date;
@@ -105,6 +111,8 @@ async function snapshot(){
 async function writeAction(command,args,id,role){
   if(isLocal)return localApi('action',{command,args,id});
   if(isDemo)return demoTransaction(g=>applyDemo(g,command,args,id,role));
-  const {error}=await client.rpc(['adjust','buy','use','edit'].includes(command)?'heart_action':'heart_quest_action',{request_id:id,command,args});
+  const rpc=['createReward','deleteQuest'].includes(command)?'heart_admin_action':
+        ['adjust','buy','use','edit'].includes(command)?'heart_action':'heart_quest_action';
+  const {error}=await client.rpc(rpc,{request_id:id,command,args});
   if(error)throw error;
 }

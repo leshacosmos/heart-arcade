@@ -27,8 +27,13 @@ function notice(message=''){
   el('notice').textContent=message;
   el('notice').hidden=!message;
 }
+let rewardDraft={name:'',price:''};
 function rewardEditor(){
-  return '<div class="edit-grid">'+rewards.map(r=>`<form class="panel edit" data-item="${r.id}">
+  const create=`<form class="panel" id="newReward"><h2>Новая награда</h2>
+    <label for="newRewardName">Название награды</label><input id="newRewardName" class="field" name="name" maxlength="80" required value="${safe(rewardDraft.name)}">
+    <label for="newRewardPrice">Цена в сердечках</label><input id="newRewardPrice" class="field" name="price" type="number" inputmode="numeric" min="1" max="9999" step="1" required value="${safe(rewardDraft.price)}">
+    <button class="btn primary">Добавить награду</button></form>`;
+  return '<div class="edit-grid">'+create+rewards.map(r=>`<form class="panel edit" data-item="${r.id}">
     <label for="name-${r.id}">Название награды</label><input class="field" id="name-${r.id}" name="name" required maxlength="80" value="${safe(r.name)}">
     <label for="price-${r.id}">Цена в сердечках</label><input class="field" id="price-${r.id}" name="price" type="number" min="1" max="9999" step="1" required value="${r.price}">
     <button class="btn primary">Сохранить</button></form>`).join('')+'</div>';
@@ -57,6 +62,7 @@ async function refresh(force=false){
 }
 function loginScreen(){
   pushBox.hidden=true;pushRegistration=null;pushEnabled=false;
+  rewardDraft={name:'',price:''};
   activeUser='';generation++;revision='';pending=null;clearPortrait();
   if(el('dialog').open)el('dialog').close();
   state.page='home';state.quests=[];questDraft=newQuestDraft();state.events=[];state.coupons=[];
@@ -113,6 +119,7 @@ async function commit(command,args,success){
       sessionStorage.setItem(storageKey,JSON.stringify(intent));
     }
     await writeAction(command,args,intent.id,state.role);
+    if(command==='createReward')rewardDraft={name:'',price:''};
     if(command==='createQuest')questDraft=newQuestDraft();
     await refresh(true);
     sessionStorage.removeItem(storageKey);
@@ -128,7 +135,7 @@ el('confirm').onclick=()=>{
 };
 el('role').onchange=()=>{
   if(!isDemo || busy){el('role').value=state.role;return}
-  questDraft=newQuestDraft();state.role=el('role').value;state.page='home';
+  rewardDraft={name:'',price:''};questDraft=newQuestDraft();state.role=el('role').value;state.page='home';
   el('avatar').src=profileAvatar();
   notice();render();
 };
@@ -163,6 +170,15 @@ document.addEventListener('click',e=>{
     if(p)void commit('adjust',{title:p.title,delta:p.delta},`Начислено +${p.delta} ♥`);
     return;
   }
+  if(button.dataset.deleteQuest && state.role==='admin'){
+    const q=state.quests.find(q=>q.id===button.dataset.deleteQuest);
+    if(q){
+      const message='Задание исчезнет из обоих кабинетов.'+(q.completed_at?' Заработанные сердечки останутся у Леши.':'');
+      modal('Удалить «'+q.title+'»?',message,'Удалить',()=>commit('deleteQuest',{quest:q.id},'Задание удалено'));
+      el('close').focus();
+    }
+    return;
+  }
   if(button.dataset.reveal){
     void commit('revealQuest',{quest:button.dataset.reveal},'Миссия раскрыта');
     return;
@@ -178,6 +194,7 @@ document.addEventListener('click',e=>{
   }
 });
 document.addEventListener('input',e=>{
+  if(e.target.form?.id==='newReward'){rewardDraft[e.target.name]=e.target.value;return}
   if(e.target.form?.id==='questForm'){
     if(e.target.name==='secret'){
       questDraft.secret=e.target.checked;
@@ -234,6 +251,10 @@ document.addEventListener('submit',async e=>{
       return;
     }
     await commit('adjust',{title,delta},delta>0?'Сердечки начислены':'Сердечки списаны');
+  }else if(form.id==='newReward'){
+    const name=form.elements.name.value.trim(),price=form.elements.price.valueAsNumber;
+    if(!name || !Number.isInteger(price) || price<1 || price>9999){notice('Проверь название и цену');return}
+    await commit('createReward',{name,price},'Награда в магазине');
   }else if(form.classList.contains('edit')){
     const name=form.elements.name.value.trim(),price=form.elements.price.valueAsNumber;
     if(!name){notice('Введи название награды');return}

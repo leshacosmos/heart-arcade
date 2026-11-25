@@ -37,6 +37,9 @@ if(!(await db.query("select to_regclass('heart_game.quests') as quests")).rows[0
 if(!(await db.query("select to_regclass('heart_game.wishes') as wishes")).rows[0].wishes){
   await db.exec(await readFile(path.join(directory,'database/005_pair_play.sql'),'utf8'));
 }
+if(!(await db.query("select to_regprocedure('public.heart_admin_action(uuid,text,jsonb)') as fn")).rows[0].fn){
+  await db.exec(await readFile(path.join(directory,'database/007_admin_actions.sql'),'utf8'));
+}
 const attempts=new Map();
 async function account(body,setup){
   const {role,password}=body;
@@ -112,7 +115,8 @@ server.on('request',async(req,res)=>{
     const value=await db.transaction(async tx=>{
       await tx.query("select set_config('app.heart_user',$1,true)",[uid]);await tx.exec('set local role authenticated');
       if(!write)return (await tx.query('select public.heart_play_snapshot() as game')).rows[0].game;
-      const rpc=['adjust','buy','use','edit'].includes(body.command)?'heart_action':'heart_quest_action';
+      const rpc=['createReward','deleteQuest'].includes(body.command)?'heart_admin_action':
+        ['adjust','buy','use','edit'].includes(body.command)?'heart_action':'heart_quest_action';
       await tx.query(`select public.${rpc}($1,$2,$3)`,[body.id,body.command,body.args]);return {ok:true};
     });
     send(res,200,value);

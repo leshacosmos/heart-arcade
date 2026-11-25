@@ -43,7 +43,7 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
 @media(max-width:500px){.quest-picker{grid-template-columns:repeat(3,minmax(0,1fr))}.quest-form{padding:14px}.quest-card img{width:48px;height:48px}}
 #pushSettings .panel p{margin:8px 0 16px;color:var(--quiet)}#pushSettings a{color:var(--pink)}
 @media(max-width:440px){nav{gap:4px 10px;justify-content:space-between;flex-wrap:wrap}}
-.quest-action,.quest-note,.wish-price label{margin-top:10px}.quest-report{display:grid;gap:6px;max-width:380px}.quest-report button{justify-self:start}.mystery-art{display:grid;place-items:center;flex:none;width:64px;height:64px;background:#423349;border-radius:8px;color:var(--pink);font:bold 32px var(--mono)}.quest-form .secret-toggle{margin:14px 0}.secret-toggle input{accent-color:var(--pink)}.wishes h2,.wish-price h3{margin-bottom:12px}.wish-price,.quest-form{margin-top:15px}
+.quest-delete{display:block;min-height:44px}#newReward h2{margin-bottom:14px}.quest-action,.quest-note,.wish-price label{margin-top:10px}.quest-report{display:grid;gap:6px;max-width:380px}.quest-report button{justify-self:start}.mystery-art{display:grid;place-items:center;flex:none;width:64px;height:64px;background:#423349;border-radius:8px;color:var(--pink);font:bold 32px var(--mono)}.quest-form .secret-toggle{margin:14px 0}.secret-toggle input{accent-color:var(--pink)}.wishes h2,.wish-price h3{margin-bottom:12px}.wish-price,.quest-form{margin-top:15px}
 #missionPush{margin-top:16px}#missionPush label{cursor:pointer}#missionPush input{accent-color:var(--pink)}#missionPushStatus{display:block}
 </style></head>
 <body><header><div class="bar"><div class="brand"><i aria-hidden="true"></i>Великий покоритель сердца</div><div class="role" id="account" hidden><img id="avatar" class="role-avatar" src="avatar-player.png" width="44" height="44" alt=""><span id="demoLabel">Демо</span><select id="role" aria-label="Роль в макете"><option value="player">Леша</option><option value="admin">Ася</option></select><button class="link" id="logout" hidden>Выйти</button></div></div></header>
@@ -59,7 +59,7 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
       <span class="sub" id="missionPushStatus" role="status"></span></div>
   </div>
 </section></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
-<script src="config.js"></script><script src="game.js?v=pair1"></script>
+<script src="config.js"></script><script src="game.js?v=quests2"></script>
 <script>
 const styles=[['#bab4e7','film'],['#ebb997','coffee'],['#b4cbb2','letter']];
 let rewards=[];
@@ -133,4 +133,4 @@ function drawSprite(canvas){
  poly(g,[[-5,-2],[-2,-2],[-2,0],[1,0],[1,-2],[5,-2],[5,3],[3,3],[3,5],[1,5],[1,7],[-1,7],[-1,5],[-3,5],[-3,3],[-5,3]],'#bf4e68');
  }
 }
-</script><script src="quests.js?v=wish1"></script><script src="push-route.js?v=wish1"></script><script src="push.js?v=wish1"></script><script src="cabinet.js?v=wish1"></script></body></html>
+</script><script src="quests.js?v=quests2"></script><script src="push-route.js?v=wish1"></script><script src="push.js?v=wish1"></script><script src="cabinet.js?v=quests2"></script></body></html>
