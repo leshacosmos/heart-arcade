@@ -47,7 +47,12 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
 #missionPush{margin-top:16px}#missionPush label{cursor:pointer}#missionPush input{accent-color:var(--pink)}#missionPushStatus{display:block}
 </style></head>
 <body><header><div class="bar"><div class="brand"><i aria-hidden="true"></i>Великий покоритель сердца</div><div class="role" id="account" hidden><img id="avatar" class="role-avatar" src="avatar-player.png" width="44" height="44" alt=""><span id="demoLabel">Демо</span><select id="role" aria-label="Роль в макете"><option value="player">Леша</option><option value="admin">Ася</option></select><button class="link" id="logout" hidden>Выйти</button></div></div></header>
-<main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><div id="view"></div>
+<main><p id="previewMode" class="sub" style="margin-top:16px" hidden>Демо-игра. Баланс и купоны сохраняются в этом браузере.</p><p id="notice" role="alert" hidden></p><nav id="nav" aria-label="Разделы"></nav><div id="view"><section class="panel" id="startup" aria-labelledby="startupTitle">
+  <h1 class="page" id="startupTitle">Открываем игру…</h1>
+  <p id="startupStatus" role="status">Загружаем кабинет.</p>
+  <button type="button" class="btn" id="startupRetry" hidden>Повторить загрузку</button>
+  <noscript>Для игры включи JavaScript в браузере.</noscript>
+</section></div>
 <section id="pushSettings" aria-labelledby="settingsTitle" hidden>
   <h1 class="page" id="settingsTitle">Настройки</h1>
   <div class="panel">
@@ -59,6 +64,17 @@ dialog{background:#24212a;color:var(--ink);border:1px solid #6d6277;border-radiu
       <span class="sub" id="missionPushStatus" role="status"></span></div>
   </div>
 </section></main><dialog id="dialog"><h2 id="modalTitle"></h2><p id="modalText"></p><div class="opts"><button class="btn primary" id="confirm">Забрать</button><button class="btn" id="close">Закрыть</button></div></dialog><div role="status" id="status"></div>
+<script>
+function showStartupRetry(message){
+  var status=document.getElementById('startupStatus');
+  if(!status)return;
+  clearTimeout(startupTimer);
+  status.textContent=message;
+  document.getElementById('startupRetry').hidden=false;
+}
+document.getElementById('startupRetry').onclick=function(){window.location.reload()};
+var startupTimer=setTimeout(function(){showStartupRetry('Загрузка занимает больше времени. Можно подождать или попробовать ещё раз.')},12000);
+</script>
 <script src="config.js"></script><script src="game.js?v=quests2"></script>
 <script>
 const styles=[['#bab4e7','film'],['#ebb997','coffee'],['#b4cbb2','letter']];
@@ -133,4 +149,4 @@ function drawSprite(canvas){
  poly(g,[[-5,-2],[-2,-2],[-2,0],[1,0],[1,-2],[5,-2],[5,3],[3,3],[3,5],[1,5],[1,7],[-1,7],[-1,5],[-3,5],[-3,3],[-5,3]],'#bf4e68');
  }
 }
-</script><script src="quests.js?v=quests2"></script><script src="push-route.js?v=wish1"></script><script src="push.js?v=wish1"></script><script src="cabinet.js?v=quests2"></script></body></html>
+</script><script src="quests.js?v=quests2"></script><script src="push-route.js?v=wish1"></script><script src="push.js?v=wish1"></script><script src="cabinet.js?v=mobile3"></script></body></html>

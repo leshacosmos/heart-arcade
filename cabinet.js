@@ -1,4 +1,5 @@
 let busy=false, activeUser='', revision='', generation=0, readNumber=0;
+let pendingReads=0;
 let portraitUrl='', portraitPending=false;
 function portraitFile(){return state.role==='admin'?'avatar-wife.png':'avatar-player.png'}
 function profileAvatar(){return portraitUrl || portraitFile()}
@@ -41,7 +42,9 @@ function rewardEditor(){
 async function refresh(force=false){
   if(!activeUser)return;
   const n=++readNumber, current=generation;
-  const data=await snapshot();
+  pendingReads++;
+  let data;
+  try{data=await snapshot()}finally{pendingReads--}
   if(current!==generation || n!==readNumber)return;
   const version=JSON.stringify([data.wishes,data.quick,data.quests,data.events,data.coupons,data.rewards,data.role]);
   if(!force && version===revision){void loadPortrait();return}
@@ -283,10 +286,13 @@ async function start(){
   }
 }
 async function sync(){
-  if(!activeUser || busy || document.hidden || document.activeElement?.closest('form') || el('dialog').open)return;
+  if(!activeUser || busy || pendingReads || document.hidden || document.activeElement?.closest('form') || el('dialog').open)return;
   try{await refresh()}catch(error){if(isLocal && error.status===401){await localStart();return}notice('Не удалось обновить кабинет. Проверь подключение.')}
 }
 window.addEventListener('focus',sync);
 document.addEventListener('visibilitychange',sync);
 setInterval(sync,8000);
-start().catch(e=>notice(e.message||'Не удалось открыть игру'));
+start().catch(error=>{
+  const message=error.message||'Не удалось открыть игру. Проверь подключение.';
+  if(el('startup'))showStartupRetry(message);else notice(message);
+});
